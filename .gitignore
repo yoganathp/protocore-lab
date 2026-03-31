@@ -1,0 +1,15 @@
+# --- Build Artifacts ---
+# Ignore the entire build directory and its contents
+build/
+
+# Specific binary extensions (as a backup)
+*.o
+*.elf
+*.bin
+*.map
+
+# --- Editor Specific ---
+# VS Code settings or workspace
+.vscode/
+# Vim swap files
+*.swp
