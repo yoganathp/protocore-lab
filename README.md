@@ -62,5 +62,9 @@ The project uses a Platform Abstraction model. Hardware-specific files (linker s
 - **ARM-Specific Directives:** [Sourceware Binutils Documentation](https://sourceware.org/binutils/docs/as/ARM-Directives.html)
 
 ### 📑 STM32F407VG Hardware
+* **QEMU STM32 Official Docs:** [STM32 Family Emulation](https://www.qemu.org/docs/master/system/arm/stm32.html)
 - **Reference Manual (RM0090):** [STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm®-based 32-bit MCUs](https://www.st.com/resource/en/reference_manual/dm00031020-stm32f405-415-stm32f407-417-stm32f427-437-and-stm32f429-439-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf)
 - **Datasheet:** [STM32F405xx STM32F407xx](https://www.st.com/resource/en/datasheet/dm00037051.pdf)
+
+### 🔍 Debugging & Visualization
+* **GDB Dashboard:** [Modular Visual Interface for GDB](https://github.com/cyrus-and/gdb-dashboard)
