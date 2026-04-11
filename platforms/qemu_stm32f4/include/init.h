@@ -49,21 +49,31 @@ typedef struct {
     volatile uint32_t RCC_SSCGR;        //0x80
     volatile uint32_t RCC_PLLI2SCFGR;   //0x84
 } RCC_MMIO;
+
+typedef struct {
+    volatile uint32_t PWR_CR;           //0x00
+} PWR_MMIO;
+
+#define VOS_SCALE1          (0x1U << 14)
+
 #define HSION               (0x1U)
 #define HSITRIM_DEF         (0x10U << 3)
 #define IS_HSIRDY(REG)      ((REG & 0x2U) >> 1)
 
+#define PWR_EN              (0x1U << 28)
+
 #define PLLON               (0x1U << 24)
+#define ISPLLRDY(REG)       ((REG & (0x1U << 25)) >> 25)
 
-#define PLLCFG_CLR_MASK  (0x0F43FFFFUL)
+#define PLLCFG_CLR_MASK     (0x0F43FFFFUL)
 
-#define RCC_PLLSRC_HSI   0x0U
-#define RCC_PLLSRC_HSE   0x1U
+#define RCC_PLLSRC_HSI      0x0U
+#define RCC_PLLSRC_HSE      0x1U
 
-#define RCC_PLLP_DIV2    0x0U
-#define RCC_PLLP_DIV4    0x1U
-#define RCC_PLLP_DIV6    0x2U
-#define RCC_PLLP_DIV8    0x3U
+#define RCC_PLLP_DIV2       0x0U
+#define RCC_PLLP_DIV4       0x1U
+#define RCC_PLLP_DIV6       0x2U
+#define RCC_PLLP_DIV8       0x3U
 
 #define PLLCFG_CONFIG(CURRENT_VAL, PLLSR, PLLM, PLLN, PLLP, PLLQ) \
     (( ((uint32_t)(CURRENT_VAL)) & ~PLLCFG_CLR_MASK) | \
@@ -100,12 +110,16 @@ typedef struct {
      (((uint32_t)(HPRE)   & 0x0FU) <<  4) | \
      (((uint32_t)(SW)     & 0x03U) <<  0))
 
-#define GET_SWS(REG)      (((uint32_t)(REG) & 0x0CU) >> 2)
+#define GET_SWS(REG)        (((uint32_t)(REG) & 0x0CU) >> 2)
 
 
 #define AHB1_BASE           (0x40020000UL)
+#define APB1_BASE           (0x40000000UL)
+
 #define RCC_OFFSET          (0x00003800UL)
+#define PWR_OFFSET          (0x00007000UL)
 
 #define RCC                 ((RCC_MMIO*)(AHB1_BASE + RCC_OFFSET))
+#define PWR                 ((PWR_MMIO*)(APB1_BASE + PWR_OFFSET))
 
 #endif
