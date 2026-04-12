@@ -54,7 +54,9 @@ typedef struct {
     volatile uint32_t PWR_CR;           //0x00
 } PWR_MMIO;
 
-#define VOS_SCALE1          (0x1U << 14)
+typedef struct {
+    volatile uint32_t FLASH_ACR;        //0x00
+} FLASH_MMIO;
 
 #define HSION               (0x1U)
 #define HSITRIM_DEF         (0x10U << 3)
@@ -112,14 +114,22 @@ typedef struct {
 
 #define GET_SWS(REG)        (((uint32_t)(REG) & 0x0CU) >> 2)
 
+#define VOS_SCALE1          (0x1U << 14)
+
+#define DCEN                (0x1U << 10)
+#define ICEN                (0x1U << 9)
+#define PRFTEN              (0x1U << 8)
+#define LATENCY_WAIT_5      (0x5U << 0)
 
 #define AHB1_BASE           (0x40020000UL)
 #define APB1_BASE           (0x40000000UL)
 
 #define RCC_OFFSET          (0x00003800UL)
 #define PWR_OFFSET          (0x00007000UL)
+#define FLASH_OFFSET        (0x00003C00UL)
 
 #define RCC                 ((RCC_MMIO*)(AHB1_BASE + RCC_OFFSET))
 #define PWR                 ((PWR_MMIO*)(APB1_BASE + PWR_OFFSET))
+#define FLASH               ((FLASH_MMIO*)(AHB1_BASE + FLASH_OFFSET))
 
 #endif

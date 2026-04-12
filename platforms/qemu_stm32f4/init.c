@@ -17,15 +17,16 @@ void init(void) {
         *dsc++ = 0;
     }
 
-    // 3. Configure the RCC => HSI
-    RCC->RCC_CR = (HSION | HSITRIM_DEF);
-    while(!(IS_HSIRDY(RCC->RCC_CR)));
-
-    // 4. Enable Power Control Clock and Set Voltage Scale
+    // 3. Enable Power Control Clock and Set Voltage Scale
     RCC->RCC_APB1ENR = PWR_EN;
     PWR->PWR_CR = VOS_SCALE1; 
 
-    // 5. Configure Flash Wait State
+    // 4. Configure Flash Wait State
+    FLASH->FLASH_ACR = (DCEN | ICEN | PRFTEN | LATENCY_WAIT_5);
+
+    // 5. Configure the RCC => HSI
+    RCC->RCC_CR = (HSION | HSITRIM_DEF);
+    while(!(IS_HSIRDY(RCC->RCC_CR)));
     
     // 6. Configure the RCC => PLL => to max system frequency
     // Prepare Input (Range: 1-2MHz):     fVCO_IN  = fHSI / M          = 16MHz / 8   = 2MHz
