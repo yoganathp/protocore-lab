@@ -1,62 +1,80 @@
 # --- Toolchain ---
-CC      = arm-none-eabi-gcc
-AS      = arm-none-eabi-as
-LD      = arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
-QEMU    = qemu-system-arm
+TOOL_PATH = arm-none-eabi-
+CC      = $(TOOL_PATH)gcc
+AS      = $(TOOL_PATH)as
+LD      = $(TOOL_PATH)ld
+OBJCOPY = $(TOOL_PATH)objcopy
+
+# Legacy xPack QEMU for active peripheral simulation
+QEMU    = $(HOME)/opt/xpack-qemu-arm-2.8.0-12/bin/qemu-system-gnuarmeclipse
+
 GDB     = gdb-multiarch
 
-# --- Emulation Config ---
-MCU         = cortex-m4
-TARGET_MACH = netduinoplus2
-
 # --- Project Paths ---
-SRC     = platforms/qemu_stm32f4/startup.s
-SRC1	= platforms/qemu_stm32f4/init.c
-LNK     = platforms/qemu_stm32f4/linker.ld
-BUILD   = build
-ELF     = $(BUILD)/protocore.elf
-BIN     = $(BUILD)/protocore.bin
-MAP     = $(BUILD)/protocore.map
+BUILD_DIR = build
+SRC_DIR   = platforms/qemu_stm32f4
+
+SRCS      = $(SRC_DIR)/startup.s $(SRC_DIR)/init.c
+OBJS      = $(BUILD_DIR)/startup.o $(BUILD_DIR)/init.o
+
+ELF       = $(BUILD_DIR)/protocore.elf
+BIN       = $(BUILD_DIR)/protocore.bin
+MAP       = $(BUILD_DIR)/protocore.map
+LNK       = $(SRC_DIR)/linker.ld
+INC       = -I$(SRC_DIR)/include/
 
 # --- Flags ---
-FLAGS = -mcpu=$(MCU) -mthumb -g
-LDFLAGS = -T $(LNK) -Map $(MAP)
+MCU_FLAGS = -mcpu=cortex-m4 -mthumb -g
+CFLAGS    = $(MCU_FLAGS) $(INC) -O0 -Wall
+ASFLAGS   = $(MCU_FLAGS)
+LDFLAGS   = -T $(LNK) -Map $(MAP)
 
 # --- Rules ---
-
-.PHONY: all clean debug qemu gdb
+.PHONY: all clean qemu gdb
 
 all: $(BIN)
-	@
 
-# 1. Assemble startup.s -> startup.o
-$(BUILD)/startup.o: $(SRC)
-	@mkdir -p $(BUILD)
-	$(AS) $(FLAGS) $< -o $@
+# Directory creation
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
 
-# 2. Compile init.c -> init.o
-$(BUILD)/init.o: $(SRC1)
-	@mkdir -p $(BUILD)
-	$(CC) $(FLAGS) -c $< -o $@
+# Compile/Assemble
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.s | $(BUILD_DIR)
+	@echo "Assembling $<..."
+	@$(AS) $(ASFLAGS) $< -o $@
 
-# 3. Link them together
-$(ELF): $(BUILD)/startup.o $(BUILD)/init.o
-	$(LD) $(LDFLAGS) $^ -o $@
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) -c $< -o $@
 
-# 4. Create raw binary
+# Link
+$(ELF): $(OBJS)
+	@echo "Linking $@..."
+	@$(LD) $(LDFLAGS) $^ -o $@
+
+# Binary extraction
 $(BIN): $(ELF)
-	$(OBJCOPY) -O binary $< $@
+	@$(OBJCOPY) -O binary $< $@
 	@echo "---------------------------------------"
-	@echo "Build Successful: $(ELF)"
+	@echo "Build Successful: $@"
 	@echo "---------------------------------------"
 
-# --- Qemu with GDB ---
+# --- Emulation & Debugging ---
 qemu: $(ELF)
-	$(QEMU) -machine $(TARGET_MACH) -cpu $(MCU) -kernel $(ELF) -nographic -S -gdb tcp::1234
+	@echo "Starting QEMU in stop-mode, waiting for GDB..."
+	@$(QEMU) \
+		--board STM32F4-Discovery \
+		--mcu STM32F407VG \
+		-d unimp,guest_errors \
+		--image $(ELF) \
+		--semihosting-config enable=on \
+		-nographic -S -gdb tcp::1234
 
 gdb: $(ELF)
-	$(GDB) $(ELF) -ex "target remote localhost:1234"
+	@$(GDB) $(ELF) \
+		-ex "set architecture armv7e-m" \
+		-ex "target remote localhost:1234"
 
 clean:
-	rm -rf $(BUILD)
+	@rm -rf $(BUILD_DIR)
+	@echo "Cleaned."
