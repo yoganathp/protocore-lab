@@ -1,3 +1,4 @@
+#include "main.h"
 #include "init.h"
 
 /* Symbols defined in the Linker Script (.ld) */
@@ -48,17 +49,11 @@ void init(void) {
     RCC->RCC_CR |= PLLON;
     while(!(ISPLLRDY(RCC->RCC_CR))); 
 
-    // 3.6 Configure Bus Prescalers (AHB=1, APB2=2, APB1=4) & Switch System Clock
+    // 3.6 Configure Bus Prescalers AHB=1 (168MHz), APB2=2 (84MHz), APB1=4 (42MHz) & Switch System Clock
     RCC->RCC_CFGR = RCC_CFGR_CONFIG(0, APB_DIV2, APB_DIV4, AHB_DIV1, RCC_SW_PLL);
     
     // Wait until the PLL is successfully used as the system clock source
     while(GET_SWS(RCC->RCC_CFGR) != RCC_SW_PLL);
-
-    // 4. Branch to the main application ----------------------------------------------------------
-    // main(); 
-    
-    // 5. Trap loop if main() returns or is not implemented ---------------------------------------
-    while(1);
 }
 
 /**

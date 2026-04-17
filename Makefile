@@ -4,6 +4,7 @@ CC      = $(TOOL_PATH)gcc
 AS      = $(TOOL_PATH)as
 LD      = $(TOOL_PATH)ld
 OBJCOPY = $(TOOL_PATH)objcopy
+OBJDUMP = $(TOOL_PATH)objdump
 
 # Legacy xPack QEMU for active peripheral simulation
 QEMU    = $(HOME)/opt/xpack-qemu-arm-2.8.0-12/bin/qemu-system-gnuarmeclipse
@@ -14,14 +15,15 @@ GDB     = gdb-multiarch
 BUILD_DIR = build
 SRC_DIR   = platforms/qemu_stm32f4
 
-SRCS      = $(SRC_DIR)/startup.s $(SRC_DIR)/init.c
-OBJS      = $(BUILD_DIR)/startup.o $(BUILD_DIR)/init.o
+SRCS      = $(SRC_DIR)/startup.s $(SRC_DIR)/init.c main.c
+OBJS      = $(BUILD_DIR)/startup.o $(BUILD_DIR)/init.o main.o
 
 ELF       = $(BUILD_DIR)/protocore.elf
 BIN       = $(BUILD_DIR)/protocore.bin
 MAP       = $(BUILD_DIR)/protocore.map
+DIS       = $(BUILD_DIR)/protocore.dis
 LNK       = $(SRC_DIR)/linker.ld
-INC       = -I$(SRC_DIR)/include/
+INC       = -I$(SRC_DIR)/include/ -Iinclude/ 
 
 # --- Flags ---
 MCU_FLAGS = -mcpu=cortex-m4 -mthumb -g
@@ -51,6 +53,8 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 $(ELF): $(OBJS)
 	@echo "Linking $@..."
 	@$(LD) $(LDFLAGS) $^ -o $@
+	@echo "Generating $(DIS)..."
+	@$(OBJDUMP) -DS $(ELF) > $(DIS)
 
 # Binary extraction
 $(BIN): $(ELF)

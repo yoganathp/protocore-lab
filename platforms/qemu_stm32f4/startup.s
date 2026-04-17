@@ -30,7 +30,8 @@
 .type Reset_Handler, %function
 Reset_Handler:
     @ The stack pointer is set automatically by hardware from 0x00
-    bl init                     @ Call init function
+    bl init                     @ Call init function -> Initialize memory, clocks, VTOR
+    bl main                     @ Call main function -> Enter the application
 
 /* --- Default Handler --- */
 .section .text.Default_Handler, "ax", %progbits

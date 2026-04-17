@@ -2,6 +2,7 @@
 #define INIT_H
 
 #include "stdint.h"
+#include "main.h"
 
 /* --- Reset and Clock Control (RCC) Register Map --- */
 typedef struct {
