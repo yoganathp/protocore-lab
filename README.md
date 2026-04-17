@@ -4,12 +4,15 @@ Welcome to **ProtoCore-Lab**. This project is a "Learn in Public" journey focuse
 
 No high-level libraries. No manufacturer HALs. Just a datasheet, a compiler, and the raw silicon.
 
-## Goal: QEMU UART Bring-up
+## Current Milestone: UART & Standard I/O Redirection
 
-The current milestone is to initialize the virtual STM32F4 UART peripheral. This allows us to:
+The initial verification of the **Vector Table** and **Startup** logic is complete. The current objective is to map the STM32F4 UART peripheral to the C standard library to enable `printf()` debugging.
 
-1. Verify the **Vector Table** and **Startup** logic.  
-2. Establish a communication channel for **Serial Logs** (printf-style debugging).
+## Milestone Status
+
+- **Phase 1**: Completed (Startup, Linker Script, and main entry verified)
+- **Phase 2**: Pending (RCC & UART Peripheral Initialization)
+- **Phase 3**: Pending (Retargeting `_write` for `printf` support)
 
 ## Why I'm Doing This
 
@@ -47,18 +50,22 @@ The project uses a Platform Abstraction model. Core initialization and periphera
 
 ```text
 .
-├── build                   # Compiled artifacts (.elf, .bin, .map)
+├── include                 # Application-level headers
+│   └── main.h
+├── main.c                  # Application entry point
 ├── Makefile                # Master build script
 ├── platforms
-│   └── qemu_stm32f4        # Specific target for QEMU emulation
-│       ├── include         # Platform-specific headers (init.h)
-│       ├── peripherals     # Low-level driver implementations
-│       │   ├── include     # Peripheral headers (uart.h)
-│       │   └── uart.c      # UART driver logic
-│       ├── init.c          # Clock, Flash, and FPU configuration
-│       ├── linker.ld       # Maps code to QEMU's virtual Flash/RAM
-│       └── startup.s       # Assembly entry point and Vector Table
-└── README.md               # Project documentation
+│   └── qemu_stm32f4        # Target: STM32F407VG (Emulated)
+│       ├── include
+│       │   └── init.h      # Hardware init abstraction
+│       ├── init.c          # System clock & FPU setup
+│       ├── linker.ld       # Memory map
+│       ├── peripherals
+│       │   ├── include
+│       │   │   └── uart.h  # Register definitions & Prototypes
+│       │   └── uart.c      # UART driver (Baud, CR1, DR logic)
+│       └── startup.s       # Vector table & Stack pointer setup
+└── README.md
 ```
 
 ## Reference & Documentation
